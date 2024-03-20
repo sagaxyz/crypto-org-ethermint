@@ -20,6 +20,7 @@ import (
 
 	corestoretypes "cosmossdk.io/core/store"
 	"cosmossdk.io/log"
+	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -40,6 +41,7 @@ type Keeper struct {
 	transientKey storetypes.StoreKey
 	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
 	authority sdk.AccAddress
+	maxGas    sdkmath.Int
 }
 
 // NewKeeper generates new fee market module keeper
@@ -54,12 +56,16 @@ func NewKeeper(
 		panic(err)
 	}
 
+	maxValue := new(big.Int).Sub(new(big.Int).Exp(big.NewInt(2), big.NewInt(256), nil), big.NewInt(1))
+	maxInt := sdkmath.NewIntFromBigInt(maxValue)
+
 	return Keeper{
 		cdc:          cdc,
 		storeService: storeService,
 		storeKey:     storeKey,
 		authority:    authority,
 		transientKey: transientKey,
+		maxGas:       maxInt,
 	}
 }
 
