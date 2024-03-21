@@ -56,7 +56,7 @@ func NewKeeper(
 		panic(err)
 	}
 
-	maxValue := new(big.Int).Sub(new(big.Int).Exp(big.NewInt(2), big.NewInt(256), nil), big.NewInt(1))
+	maxValue := new(big.Int).Sub(new(big.Int).Exp(big.NewInt(2), big.NewInt(sdkmath.MaxBitLen), nil), big.NewInt(1))
 	maxInt := sdkmath.NewIntFromBigInt(maxValue)
 
 	return Keeper{
