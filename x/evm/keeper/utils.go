@@ -27,23 +27,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/evmos/ethermint/x/evm/types"
 )
 
 // GetCoinbaseAddress returns the block proposer's validator operator address.
 func (k Keeper) GetCoinbaseAddress(ctx sdk.Context, proposerAddress sdk.ConsAddress) (common.Address, error) {
-	validator, found := k.stakingKeeper.GetValidatorByConsAddr(ctx, GetProposerAddress(ctx, proposerAddress))
-	if !found {
-		return common.Address{}, errorsmod.Wrapf(
-			stakingtypes.ErrNoValidatorFound,
-			"failed to retrieve validator from block proposer address %s",
-			proposerAddress.String(),
-		)
-	}
-
-	coinbase := common.BytesToAddress(validator.GetOperator())
+	proposerAddress = GetProposerAddress(ctx, proposerAddress)
+	coinbase := common.BytesToAddress(proposerAddress)
 	return coinbase, nil
 }
 
