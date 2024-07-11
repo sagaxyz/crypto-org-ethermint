@@ -47,5 +47,16 @@ func (k Keeper) GetBaseFee(ctx sdk.Context) *big.Int {
 
 // SetBaseFee set's the base fee in the paramSpace
 func (k Keeper) SetBaseFee(ctx sdk.Context, baseFee *big.Int) {
-	k.paramSpace.Set(ctx, types.ParamStoreKeyBaseFee, sdkmath.NewIntFromBigInt(baseFee))
+	// prevents overflow
+	var fixedBaseFee sdkmath.Int
+	if baseFee.BitLen() > 256 {
+		var maxInt sdkmath.Int
+		maxValue := new(big.Int).Sub(new(big.Int).Exp(big.NewInt(2), big.NewInt(256), nil), big.NewInt(1))
+		maxInt = sdkmath.NewIntFromBigInt(maxValue)
+		fixedBaseFee = maxInt
+	} else {
+		fixedBaseFee = sdk.NewIntFromBigInt(baseFee)
+	}
+
+	k.paramSpace.Set(ctx, types.ParamStoreKeyBaseFee, fixedBaseFee)
 }
